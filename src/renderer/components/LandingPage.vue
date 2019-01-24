@@ -8,7 +8,7 @@
         </span>
         <system-information></system-information>
       </div>
-
+      
       <div class="right-side">
         <div class="doc">
           <div class="title">Getting Started</div>
@@ -26,21 +26,22 @@
         </div>
       </div>
     </main>
+    <router-link to="/todos">Todos</router-link>
   </div>
 </template>
 
 <script>
-  import SystemInformation from './LandingPage/SystemInformation';
+  import SystemInformation from './LandingPage/SystemInformation'
 
-  export default {
+export default {
     name: 'landing-page',
     components: { SystemInformation },
     methods: {
       open(link) {
-        this.$electron.shell.openExternal(link);
+        this.$electron.shell.openExternal(link)
       },
     },
-  };
+  }
 </script>
 
 <style>

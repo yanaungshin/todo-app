@@ -1,4 +1,6 @@
-import { app, BrowserWindow } from 'electron' // eslint-disable-line
+import { app, BrowserWindow, ipcMain } from 'electron' // eslint-disable-line
+import io from 'socket.io-client'
+import DataStore from '../DataStore'
 
 /**
  * Set `__static` path to static files in production
@@ -9,9 +11,8 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow
-const winURL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:9080'
-  : `file://${__dirname}/index.html`
+const winURL =
+  process.env.NODE_ENV === 'development' ? 'http://localhost:9080' : `file://${__dirname}/index.html`
 
 function createWindow() {
   /**
@@ -43,7 +44,21 @@ app.on('activate', () => {
     createWindow()
   }
 })
+const todos = new DataStore({ name: 'todos-db' })
 
+ipcMain.on('add-todo', (event, data) => {
+  const dt = todos.addTodos(data)
+  event.sender.send('todo-list', dt.todos)
+})
+
+const socket = io('http://localhost:3000')
+socket.on('connect', () => {
+  console.log('connect to server')
+  ipcMain.on('gpio', (event, data) => {
+    console.log(data)
+    socket.emit('gpio', data)
+  })
+})
 /**
  * Auto Updater
  *
