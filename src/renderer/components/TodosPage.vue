@@ -5,22 +5,41 @@
     <v-btn
       color="primary"
       dark
-      @click="lightOnOff()"
-    >
-      Button Turn on
-    </v-btn>
-    <v-btn
-      color="primary"
-      dark
       @click="dialog = true"
     >
       ADD
     </v-btn>
-    <ul>
-      <li v-for="item in items" :key="item">
-      {{ item }}
-      </li>
-    </ul>
+    <v-layout row>
+    <v-flex xs12 sm6 offset-sm3>
+      <v-card>
+        <v-toolbar color="cyan" dark>
+          <v-toolbar-side-icon></v-toolbar-side-icon>
+
+          <v-toolbar-title>Inbox</v-toolbar-title>
+
+          <v-spacer></v-spacer>
+
+          <v-btn icon>
+            <v-icon>search</v-icon>
+          </v-btn>
+        </v-toolbar>
+
+        <v-list two-line>
+          <template v-for="(item, index) in items">
+            <v-list-tile
+              :key="index"
+            >
+
+              <v-list-tile-content>
+                <v-list-tile-title v-html="item"></v-list-tile-title>
+              </v-list-tile-content>
+            </v-list-tile>
+            <v-divider v-if="index + 1 < items.length" :key="`divider-${index}`"></v-divider>
+          </template>
+        </v-list>
+      </v-card>
+    </v-flex>
+  </v-layout>
     <v-dialog
       v-model="dialog"
       max-width="290"
@@ -33,7 +52,6 @@
         <v-container grid-list-md>
           <v-layout wrap>
             <v-flex xs12>
-              <v-text-field label="Email*" required></v-text-field>
               <v-text-field label="TODO*" required v-model="work"></v-text-field>
             </v-flex>
           </v-layout>
@@ -77,6 +95,7 @@ export default {
     }
   },
   mounted() {
+    this.items = this.$electron.ipcRenderer.sendSync('todo-list')
     this.$electron.ipcRenderer.on('todo-list', (even, data) => {
       this.items = data
     })
@@ -85,10 +104,6 @@ export default {
     save() {
       this.$electron.ipcRenderer.send('add-todo', this.work)
       this.dialog = false
-    },
-    lightOnOff() {
-      console.log(this.light)
-      this.$electron.ipcRenderer.send('gpio', { type: 'lamp', value: this.light })
     },
   },
 }
